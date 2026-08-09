@@ -1,27 +1,21 @@
 class Solution:
     def getAncestors(self, n: int, edges: List[List[int]]) -> List[List[int]]:
-        from collections import deque 
         graph=[[] for _ in range(n)]
-        for u,v in edges:
-            graph[v].append(u)
-        ans=[[] for _ in range(n)]
-        def findans(node):
-            queue=deque()
-            visited = set()
-            for it in graph[node]:
-                queue.append(it)
-                visited.add(it)
-            while queue:
-                x=queue.popleft()
-                for i in graph[x]:
-                    if i not in visited:
-                        visited.add(i)
-                        queue.append(i) 
-            ans[node]=sorted(visited)
+        indegree=[0]*n
+        for u, v in edges:
+            graph[u].append(v)
+            indegree[v]+=1
+        ancestors=[set() for _ in range(n)]
+        q=deque()
         for i in range(n):
-            findans(i) 
-        return ans
-
-
-
-        
+            if indegree[i]==0:
+                q.append(i)
+        while q:
+            u=q.popleft()
+            for v in graph[u]:
+                ancestors[v].add(u)
+                ancestors[v].update(ancestors[u])
+                indegree[v]-=1
+                if indegree[v]==0:
+                    q.append(v)
+        return [sorted(s) for s in ancestors]
